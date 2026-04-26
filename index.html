@@ -1,195 +1,295 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Abbasalamma | Premium Cannabis</title>
-
-<script src="https://cdn.tailwindcss.com"></script>
-
-<style>
-html { scroll-behavior: smooth; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Abbasalamma Greenhouse | Premium Cannabis</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: '#22c55e'
+          },
+          boxShadow: {
+            glow: '0 0 30px rgba(34,197,94,0.18)'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+    body { font-family: Inter, sans-serif; }
+    .glass {
+      background: rgba(24, 24, 27, 0.7);
+      backdrop-filter: blur(12px);
+    }
+  </style>
 </head>
-
 <body class="bg-zinc-950 text-white">
 
-<!-- NAV -->
-<nav class="fixed w-full bg-zinc-900/80 backdrop-blur border-b border-zinc-800 z-50">
-<div class="max-w-7xl mx-auto flex justify-between items-center px-4 py-4">
+  <!-- NAVBAR -->
+  <nav class="fixed top-0 left-0 w-full z-50 border-b border-zinc-800 glass">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <h1 class="text-2xl md:text-3xl font-black tracking-tight">
+        Abbasalamma <span class="text-brand">Greenhouse</span>
+      </h1>
 
-<h1 class="text-2xl font-black text-green-500">Abbasalamma Greenhouse</h1>
+      <div class="hidden md:flex gap-8 text-sm font-medium text-zinc-300">
+        <a href="#home" class="hover:text-brand">Home</a>
+        <a href="#shop" class="hover:text-brand">Shop</a>
+        <a href="#features" class="hover:text-brand">Features</a>
+        <a href="#about" class="hover:text-brand">About</a>
+        <a href="#contact" class="hover:text-brand">Contact</a>
+      </div>
 
-<div class="hidden md:flex gap-6 text-sm">
-<a href="#home">Home</a>
-<a href="#shop">Shop</a>
-<a href="#about">About</a>
-<a href="#contact">Contact</a>
-</div>
+      <button onclick="toggleCart()" class="relative text-2xl hover:scale-110 transition">
+        🛒
+        <span id="cartCount" class="absolute -top-2 -right-3 bg-brand text-black text-xs font-bold px-2 py-1 rounded-full">0</span>
+      </button>
+    </div>
+  </nav>
 
-<button onclick="toggleCart()" class="relative text-xl">
-🛒
-<span id="cartCount" class="absolute -top-2 -right-2 bg-green-500 text-black text-xs px-2 rounded-full">0</span>
-</button>
+  <!-- HERO -->
+  <section id="home" class="min-h-screen flex items-center pt-24">
+    <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+      <div>
+        <p class="text-brand uppercase tracking-[0.2em] text-sm mb-4">Premium Cannabis Experience</p>
+        <h2 class="text-5xl md:text-7xl font-black leading-tight mb-6">
+          Elevated Lifestyle.<br>
+          <span class="text-brand">Luxury Strains.</span>
+        </h2>
+        <p class="text-zinc-400 text-lg max-w-xl mb-8">
+          Discover carefully curated premium-grade cannabis strains crafted for connoisseurs seeking quality, purity, and a refined experience.
+        </p>
+        <div class="flex flex-wrap gap-4">
+          <a href="#shop" class="bg-brand text-black font-semibold px-8 py-4 rounded-xl shadow-glow hover:scale-105 transition">
+            Shop Now
+          </a>
+          <a href="#about" class="border border-zinc-700 px-8 py-4 rounded-xl hover:border-brand transition">
+            Learn More
+          </a>
+        </div>
+      </div>
 
-</div>
-</nav>
+      <div>
+        <img
+          src="https://images.unsplash.com/photo-1603909223429-69bb7101f420?auto=format&fit=crop&w=1200&q=80"
+          class="rounded-3xl shadow-2xl border border-zinc-800"
+          alt="Premium Cannabis"
+        />
+      </div>
+    </div>
+  </section>
 
-<!-- HERO -->
-<section id="home" class="min-h-screen flex items-center max-w-7xl mx-auto px-4">
-<div>
-<h2 class="text-6xl font-bold mb-6">
-Premium Cannabis <br>
-<span class="text-green-500">Elevated Experience</span>
-</h2>
+  <!-- SHOP -->
+  <section id="shop" class="max-w-7xl mx-auto px-6 py-24">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-10">
+      <div>
+        <h2 class="text-4xl font-bold">Featured Collection</h2>
+        <p class="text-zinc-400 mt-2">Browse our premium hand-selected strains</p>
+      </div>
 
-<p class="text-gray-400 max-w-lg mb-6">
-Crafted for connoisseurs. Lab-tested, premium-grade strains.
-</p>
+      <input
+        id="search"
+        oninput="renderProducts()"
+        placeholder="Search products..."
+        class="bg-zinc-900 border border-zinc-800 rounded-xl px-5 py-4 w-full md:w-80 outline-none focus:border-brand"
+      />
+    </div>
 
-<a href="#shop" class="bg-green-600 px-6 py-3 rounded-lg hover:bg-green-500">
-Shop Now
-</a>
-</div>
-</section>
+    <div id="productGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+  </section>
 
-<!-- SHOP -->
-<section id="shop" class="max-w-7xl mx-auto px-4 py-20">
+  <!-- FEATURES -->
+  <section id="features" class="bg-zinc-900 py-24">
+    <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-3 gap-8">
+      <div class="p-8 rounded-2xl border border-zinc-800 bg-zinc-950">
+        <h3 class="text-xl font-bold text-brand mb-3">Lab Tested</h3>
+        <p class="text-zinc-400">Every product is verified for purity, safety, and premium potency.</p>
+      </div>
 
-<h2 class="text-3xl font-bold mb-6">Shop</h2>
+      <div class="p-8 rounded-2xl border border-zinc-800 bg-zinc-950">
+        <h3 class="text-xl font-bold text-brand mb-3">Luxury Quality</h3>
+        <p class="text-zinc-400">Only elite, top-shelf strains selected for true enthusiasts.</p>
+      </div>
 
-<input id="search" oninput="renderProducts()" placeholder="Search..." class="bg-zinc-900 px-4 py-3 rounded-lg w-full mb-6 border border-zinc-800">
+      <div class="p-8 rounded-2xl border border-zinc-800 bg-zinc-950">
+        <h3 class="text-xl font-bold text-brand mb-3">Fast Delivery</h3>
+        <p class="text-zinc-400">Reliable, discreet, and secure premium delivery experience.</p>
+      </div>
+    </div>
+  </section>
 
-<div id="productGrid" class="grid md:grid-cols-3 gap-8"></div>
+  <!-- ABOUT -->
+  <section id="about" class="max-w-7xl mx-auto px-6 py-24">
+    <h2 class="text-4xl font-bold mb-6">About Abbasalamma</h2>
+    <p class="text-zinc-400 max-w-3xl text-lg leading-relaxed">
+      We are redefining cannabis culture through transparency, premium cultivation, and elevated customer experiences. Our mission is simple: provide top-tier products with trust, innovation, and unmatched quality.
+    </p>
+  </section>
 
-</section>
+  <!-- CONTACT -->
+  <section id="contact" class="bg-zinc-900 py-24">
+    <div class="max-w-4xl mx-auto px-6 text-center">
+      <h2 class="text-4xl font-bold mb-4">Stay Connected</h2>
+      <p class="text-zinc-400 mb-8">Join our community for exclusive updates and premium drops.</p>
 
-<!-- FEATURES -->
-<section class="bg-zinc-900 py-20">
-<div class="max-w-7xl mx-auto px-4 grid md:grid-cols-3 gap-8 text-center">
+      <div class="flex flex-col md:flex-row gap-4 justify-center">
+        <input
+          type="email"
+          placeholder="Enter your email"
+          class="bg-zinc-800 border border-zinc-700 rounded-xl px-5 py-4 w-full md:w-96 outline-none focus:border-brand"
+        />
+        <button class="bg-brand text-black font-semibold px-8 py-4 rounded-xl hover:scale-105 transition">
+          Join Now
+        </button>
+      </div>
+    </div>
+  </section>
 
-<div>
-<h3 class="text-xl font-bold mb-2 text-green-400">Lab Tested</h3>
-<p class="text-gray-400">All products verified for purity and potency.</p>
-</div>
+  <!-- CART SIDEBAR -->
+  <div id="cart" class="fixed top-0 right-0 h-full w-96 bg-zinc-900 border-l border-zinc-800 p-6 translate-x-full transition duration-300 z-[60] overflow-y-auto">
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="text-2xl font-bold">Your Cart</h3>
+      <button onclick="toggleCart()" class="text-zinc-400 hover:text-white">✕</button>
+    </div>
 
-<div>
-<h3 class="text-xl font-bold mb-2 text-green-400">Premium Quality</h3>
-<p class="text-gray-400">Carefully curated top-tier strains.</p>
-</div>
+    <ul id="cartItems" class="space-y-4"></ul>
+    <p id="cartTotal" class="mt-6 text-lg font-bold">Total: R0</p>
+  </div>
 
-<div>
-<h3 class="text-xl font-bold mb-2 text-green-400">Fast Delivery</h3>
-<p class="text-gray-400">Discreet and reliable shipping.</p>
-</div>
+  <!-- MODAL -->
+  <div id="modal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-[70] px-4">
+    <div class="bg-zinc-900 border border-zinc-800 rounded-3xl max-w-lg w-full p-6">
+      <img id="modalImg" class="rounded-2xl mb-5 w-full h-72 object-cover" alt="Product" />
+      <h3 id="modalTitle" class="text-2xl font-bold mb-2"></h3>
+      <p id="modalDesc" class="text-zinc-400 mb-4"></p>
+      <p id="modalPrice" class="text-2xl font-bold text-brand mb-6"></p>
 
-</div>
-</section>
+      <div class="flex gap-4">
+        <button id="modalBtn" class="flex-1 bg-brand text-black font-semibold py-3 rounded-xl">
+          Add to Cart
+        </button>
+        <button onclick="closeModal()" class="flex-1 border border-zinc-700 py-3 rounded-xl">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
 
-<!-- ABOUT -->
-<section id="about" class="max-w-7xl mx-auto px-4 py-20">
-<h2 class="text-3xl font-bold mb-4">About Greenhouse</h2>
-<p class="text-gray-400 max-w-2xl">
-We are redefining cannabis culture through premium products, transparency, and innovation. 
-Our mission is to deliver a refined, safe, and elevated experience.
-</p>
-</section>
+  <script>
+    const products = [
+      {
+        name: 'Durban Poison',
+        price: 850,
+        desc: 'Energetic, uplifting Sativa with a clean cerebral high.',
+        img: 'https://goodchem.org/wp-content/uploads/2016/03/FACEBOOK-gcnurseries-DURBANP.jpg'
+      },
+      {
+        name: 'Northern Lights',
+        price: 780,
+        desc: 'Deeply relaxing Indica with smooth calming effects.',
+        img: 'https://images.unsplash.com/photo-1603909223429-69bb7101f420?auto=format&fit=crop&w=800&q=80'
+      },
+      {
+        name: 'OG Kush',
+        price: 920,
+        desc: 'Classic hybrid strain with powerful balanced effects.',
+        img: 'https://images.unsplash.com/photo-1603909593608-7c3c7d73c8d3?auto=format&fit=crop&w=800&q=80'
+      }
+    ];
 
-<!-- CONTACT -->
-<section id="contact" class="bg-zinc-900 py-20">
-<div class="max-w-7xl mx-auto px-4 text-center">
-<h2 class="text-3xl font-bold mb-4">Stay Connected</h2>
-<p class="text-gray-400 mb-6">Join our community and stay updated.</p>
+    let cart = [];
 
-<input placeholder="Email address" class="px-4 py-3 rounded-lg bg-zinc-800 border border-zinc-700 w-64">
-<button class="bg-green-600 px-6 py-3 rounded-lg ml-2">Join</button>
-</div>
-</section>
+    function renderProducts() {
+      const grid = document.getElementById('productGrid');
+      const search = document.getElementById('search').value.toLowerCase();
+      grid.innerHTML = '';
 
-<!-- CART -->
-<div id="cart" class="fixed right-0 top-0 h-full w-80 bg-zinc-900 border-l border-zinc-800 translate-x-full transition p-6">
-<h3 class="text-xl font-bold mb-4">Cart</h3>
-<ul id="cartItems"></ul>
-</div>
+      const filtered = products.filter(product =>
+        product.name.toLowerCase().includes(search)
+      );
 
-<!-- MODAL -->
-<div id="modal" class="fixed inset-0 bg-black/80 hidden items-center justify-center">
-<div class="bg-zinc-900 p-6 rounded-xl max-w-md w-full">
-<img id="modalImg" class="mb-4 rounded">
-<h3 id="modalTitle" class="text-xl font-bold"></h3>
-<p id="modalDesc" class="text-gray-400 mb-4"></p>
-<button id="modalBtn" class="bg-green-600 w-full py-3 rounded">Add</button>
-</div>
-</div>
+      filtered.forEach(product => {
+        const card = document.createElement('div');
+        card.className = 'bg-zinc-900 border border-zinc-800 rounded-3xl overflow-hidden hover:scale-[1.02] transition duration-300';
 
-<script>
-const products = [
-{
-name:"Durban Poison",
-price:850,
-desc:"Energetic, uplifting Sativa.",
-img:"https://goodchem.org/wp-content/uploads/2016/03/FACEBOOK-gcnurseries-DURBANP.jpg"
-},
-{
-name:"Northern Lights",
-price:780,
-desc:"Relaxing Indica experience.",
-img:"https://images.unsplash.com/photo-1603909223429-69bb7101f420?auto=format&fit=crop&w=800&q=80"
-}
-];
+        card.innerHTML = `
+          <img src="${product.img}" class="h-64 w-full object-cover" alt="${product.name}" />
+          <div class="p-6">
+            <h3 class="text-2xl font-bold mb-2">${product.name}</h3>
+            <p class="text-zinc-400 mb-4">${product.desc}</p>
+            <div class="flex items-center justify-between">
+              <span class="text-2xl font-bold text-brand">R${product.price}</span>
+              <button onclick="quickView('${product.name}')" class="bg-brand text-black px-5 py-2 rounded-xl font-semibold">
+                View
+              </button>
+            </div>
+          </div>
+        `;
 
-let cart=[];
+        grid.appendChild(card);
+      });
+    }
 
-function renderProducts(){
-const grid=document.getElementById("productGrid");
-const search=document.getElementById("search").value.toLowerCase();
-grid.innerHTML="";
+    function quickView(name) {
+      const product = products.find(item => item.name === name);
+      document.getElementById('modal').classList.remove('hidden');
+      document.getElementById('modal').classList.add('flex');
+      document.getElementById('modalImg').src = product.img;
+      document.getElementById('modalTitle').innerText = product.name;
+      document.getElementById('modalDesc').innerText = product.desc;
+      document.getElementById('modalPrice').innerText = `R${product.price}`;
+      document.getElementById('modalBtn').onclick = () => addToCart(product);
+    }
 
-products.filter(p=>p.name.toLowerCase().includes(search)).forEach(p=>{
-const el=document.createElement("div");
+    function closeModal() {
+      document.getElementById('modal').classList.add('hidden');
+      document.getElementById('modal').classList.remove('flex');
+    }
 
-el.className="bg-zinc-900 rounded-xl overflow-hidden hover:scale-105 transition";
+    function addToCart(product) {
+      cart.push(product);
+      updateCart();
+      closeModal();
+    }
 
-el.innerHTML=`
-<img src="${p.img}" class="h-60 w-full object-cover">
-<div class="p-5">
-<h3 class="text-xl font-bold">${p.name}</h3>
-<p class="text-gray-400 text-sm">${p.desc}</p>
+    function updateCart() {
+      const cartItems = document.getElementById('cartItems');
+      const cartCount = document.getElementById('cartCount');
+      const cartTotal = document.getElementById('cartTotal');
 
-<div class="flex justify-between mt-4">
-<span class="text-2xl font-bold">R${p.price}</span>
-<button onclick="quickView('${p.name}')" class="bg-green-600 px-4 py-2 rounded">View</button>
-</div>
-</div>
-`;
+      cartItems.innerHTML = '';
+      let total = 0;
 
-grid.appendChild(el);
-});
-}
+      cart.forEach(item => {
+        total += item.price;
 
-function quickView(name){
-const p=products.find(x=>x.name===name);
-modal.classList.remove("hidden");
-modal.classList.add("flex");
+        const li = document.createElement('li');
+        li.className = 'border border-zinc-800 rounded-xl p-4';
+        li.innerHTML = `
+          <div class="flex justify-between">
+            <span>${item.name}</span>
+            <span class="text-brand font-bold">R${item.price}</span>
+          </div>
+        `;
 
-modalImg.src=p.img;
-modalTitle.innerText=p.name;
-modalDesc.innerText=p.desc;
+        cartItems.appendChild(li);
+      });
 
-modalBtn.onclick=()=>addToCart(p.name,p.price);
-}
+      cartCount.innerText = cart.length;
+      cartTotal.innerText = `Total: R${total}`;
+    }
 
-function addToCart(name,price){
-cart.push({name,price});
-document.getElementById("cartCount").innerText=cart.length;
-}
+    function toggleCart() {
+      document.getElementById('cart').classList.toggle('translate-x-full');
+    }
 
-function toggleCart(){
-document.getElementById("cart").classList.toggle("translate-x-full");
-}
-
-renderProducts();
-</script>
+    renderProducts();
+  </script>
 
 </body>
 </html>
