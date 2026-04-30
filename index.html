@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Abbasalamma Greenhouse | Premium Cannabis</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -25,6 +27,15 @@
     .glass {
       background: rgba(24, 24, 27, 0.7);
       backdrop-filter: blur(12px);
+    }
+    #locationMap {
+      height: 300px;
+      border-radius: 0.75rem;
+      border: 1px solid #27272a;
+    }
+    .leaflet-container {
+      background: #18181b !important;
+      border-radius: 0.75rem;
     }
   </style>
 </head>
@@ -162,6 +173,51 @@
 
     <ul id="cartItems" class="space-y-4"></ul>
     <p id="cartTotal" class="mt-6 text-lg font-bold">Total: R0</p>
+
+    <form id="orderForm" class="mt-8 space-y-4 border-t border-zinc-800 pt-6" action="https://formspree.io/f/YOUR_FORMSPREE_ID" method="POST">
+      <h4 class="font-semibold mb-4">Delivery Information</h4>
+      <input
+        name="fullName"
+        type="text"
+        placeholder="Full Name"
+        required
+        class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-brand text-white"
+      />
+      <input
+        name="phoneNumber"
+        type="tel"
+        placeholder="Phone Number"
+        required
+        class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-brand text-white"
+      />
+      <input
+        name="deliveryLocation"
+        type="text"
+        placeholder="Delivery Location"
+        required
+        class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-brand text-white"
+      />
+      <p class="text-sm text-zinc-400">Click on the map to set delivery location</p>
+      <div id="locationMap" class="w-full"></div>
+      <input
+        id="mapCoordinates"
+        name="mapCoordinates"
+        type="hidden"
+      />
+      <input
+        id="cartItemsField"
+        name="items"
+        type="hidden"
+      />
+      <input
+        id="totalField"
+        name="total"
+        type="hidden"
+      />
+      <button type="submit" class="w-full mt-4 bg-brand text-black font-bold py-4 rounded-xl hover:scale-105 transition">
+        Submit Order
+      </button>
+    </form>
   </div>
 
   <!-- MODAL -->
@@ -268,16 +324,19 @@
       cartItems.innerHTML = '';
       let total = 0;
 
-      cart.forEach(item => {
+      cart.forEach((item, index) => {
         total += item.price;
 
         const li = document.createElement('li');
         li.className = 'border border-zinc-800 rounded-xl p-4';
         li.innerHTML = `
-          <div class="flex justify-between">
+          <div class="flex justify-between items-center mb-3">
             <span>${item.name}</span>
             <span class="text-brand font-bold">R${item.price}</span>
           </div>
+          <button onclick="removeFromCart(${index})" class="w-full text-sm bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg font-semibold transition">
+            Remove from Cart
+          </button>
         `;
 
         cartItems.appendChild(li);
@@ -287,11 +346,105 @@
       cartTotal.innerText = `Total: R${total}`;
     }
 
+    function removeFromCart(index) {
+      cart.splice(index, 1);
+      updateCart();
+    }
+
+    function submitOrder() {
+      const form = document.getElementById('orderForm');
+      
+      if (cart.length === 0) {
+        alert('Your cart is empty! Add items before submitting an order.');
+        return;
+      }
+
+      const total = cart.reduce((sum, item) => sum + item.price, 0);
+      const items = cart.map(item => item.name).join(', ');
+
+      document.getElementById('cartItemsField').value = items;
+      document.getElementById('totalField').value = `R${total}`;
+
+      form.submit();
+    }
+
+    document.getElementById('orderForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      if (cart.length === 0) {
+        alert('Your cart is empty! Add items before submitting an order.');
+        return;
+      }
+
+      const total = cart.reduce((sum, item) => sum + item.price, 0);
+      const items = cart.map(item => item.name).join(', ');
+
+      document.getElementById('cartItemsField').value = items;
+      document.getElementById('totalField').value = `R${total}`;
+
+      this.submit();
+      
+      setTimeout(() => {
+        cart = [];
+        document.getElementById('orderForm').reset();
+        updateCart();
+        toggleCart();
+      }, 500);
+    });
+
     function toggleCart() {
       document.getElementById('cart').classList.toggle('translate-x-full');
     }
 
+    // Initialize Map
+    let map = null;
+    let marker = null;
+    
+    function initializeMap() {
+      const mapContainer = document.getElementById('locationMap');
+      if (!mapContainer) return;
+
+      // Default location (Johannesburg, South Africa)
+      const defaultLat = -26.2023;
+      const defaultLng = 28.0436;
+
+      map = L.map('locationMap').setView([defaultLat, defaultLng], 13);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 19
+      }).addTo(map);
+
+      // Click handler to add marker
+      map.on('click', function(e) {
+        const lat = e.latlng.lat;
+        const lng = e.latlng.lng;
+
+        if (marker) {
+          map.removeLayer(marker);
+        }
+
+        marker = L.marker([lat, lng]).addTo(map).bindPopup(`Location: ${lat.toFixed(4)}, ${lng.toFixed(4)}`).openPopup();
+
+        document.getElementById('mapCoordinates').value = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+        document.getElementById('deliveryLocation').value = `Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}`;
+      });
+
+      // Get user's current location
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          map.setView([lat, lng], 15);
+
+          marker = L.marker([lat, lng]).addTo(map).bindPopup('Your Location').openPopup();
+          document.getElementById('mapCoordinates').value = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+        });
+      }
+    }
+
     renderProducts();
+    initializeMap();
   </script>
 
 </body>
