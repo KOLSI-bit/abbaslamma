@@ -37,6 +37,34 @@
       background: #18181b !important;
       border-radius: 0.75rem;
     }
+    .location-search-container {
+      position: relative;
+    }
+    .location-suggestions {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 0.5rem;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 1000;
+      display: none;
+    }
+    .location-suggestion {
+      padding: 0.75rem;
+      cursor: pointer;
+      border-bottom: 1px solid #27272a;
+      color: #ffffff;
+    }
+    .location-suggestion:hover {
+      background: #27272a;
+    }
+    .location-suggestion:last-child {
+      border-bottom: none;
+    }
   </style>
 </head>
 <body class="bg-zinc-950 text-white">
@@ -174,7 +202,7 @@
     <ul id="cartItems" class="space-y-4"></ul>
     <p id="cartTotal" class="mt-6 text-lg font-bold">Total: R0</p>
 
-    <form id="orderForm" class="mt-8 space-y-4 border-t border-zinc-800 pt-6" action="https://formspree.io/f/YOUR_FORMSPREE_ID" method="POST">
+    <form id="orderForm" class="mt-8 space-y-4 border-t border-zinc-800 pt-6" action="https://formspree.io/f/xbdwjjpa" method="POST">
       <h4 class="font-semibold mb-4">Delivery Information</h4>
       <input
         name="fullName"
@@ -190,13 +218,17 @@
         required
         class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-brand text-white"
       />
-      <input
-        name="deliveryLocation"
-        type="text"
-        placeholder="Delivery Location"
-        required
-        class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-brand text-white"
-      />
+      <div class="location-search-container">
+        <input
+          id="deliveryLocation"
+          name="deliveryLocation"
+          type="text"
+          placeholder="Delivery Location"
+          required
+          class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-brand text-white"
+        />
+        <div id="locationSuggestions" class="location-suggestions"></div>
+      </div>
       <p class="text-sm text-zinc-400">Click on the map to set delivery location</p>
       <div id="locationMap" class="w-full"></div>
       <input
@@ -242,22 +274,100 @@
   <script>
     const products = [
       {
-        name: 'Durban Poison',
-        price: 850,
-        desc: 'Energetic, uplifting Sativa with a clean cerebral high.',
-        img: 'https://goodchem.org/wp-content/uploads/2016/03/FACEBOOK-gcnurseries-DURBANP.jpg'
+        name: 'Magic Mushrooms (1g)',
+        price: 100,
+        desc: 'Premium psychedelic mushrooms for an elevated experience.',
+        img: 'https://www.startpage.com/av/proxy-image?piurl=https%3A%2F%2Ftse3.mm.bing.net%2Fth%2Fid%2FOIP.36Y3b0IAQftakm2wNojxuAHaEK%3Fpid%3DApi&sp=1777565973Te2116f30bf9d49be0d4eb7f584b4dc1a42bdf1d455461f712cb080021e86de01'
       },
       {
-        name: 'Northern Lights',
-        price: 780,
-        desc: 'Deeply relaxing Indica with smooth calming effects.',
+        name: 'Weed Outdoor - Basic Skunk (1g)',
+        price: 15,
+        desc: 'Outdoor grown cannabis - Basic Skunk quality per gram.',
+        img: 'https://www.startpage.com/av/proxy-image?piurl=https%3A%2F%2Ftse1.mm.bing.net%2Fth%2Fid%2FOIP.YNWamqQqXZ3s-Qfd6CflmQHaHa%3Fpid%3DApi&sp=1777566064T593805e17febb0f7fe728fc0a6d2917593d8e2f63b6a9b71aa7f92be1fe992d6'
+      },
+      {
+        name: 'Weed Outdoor - Standard Skunk (1g)',
+        price: 30,
+        desc: 'Outdoor grown cannabis - Standard Skunk quality per gram.',
         img: 'https://images.unsplash.com/photo-1603909223429-69bb7101f420?auto=format&fit=crop&w=800&q=80'
       },
       {
-        name: 'OG Kush',
-        price: 920,
-        desc: 'Classic hybrid strain with powerful balanced effects.',
-        img: 'https://bucket.growdiaries.com/static/seed_item_photos/13700/og-kush_700.webp'
+        name: 'Weed Outdoor - Premium Chronic Grade (1g)',
+        price: 50,
+        desc: 'Outdoor grown cannabis - Premium Chronic quality per gram.',
+        img: 'https://www.startpage.com/av/proxy-image?piurl=https%3A%2F%2Fthf.bing.com%2Fth%2Fid%2FOIP.Li0SJOWZxquf65A229JnPQHaHa%3Fcb%3Dthfc1%26pid%3DApi&sp=1777566161T962bf0851481c51f0c2822574b441794957956499e5c6184bc2b05aeec12def4'
+      },
+      {
+        name: 'Weed Indoor - Premium Durban Poison (1g)',
+        price: 70,
+        desc: 'Indoor grown cannabis - Premium Durban Poison quality per gram.',
+        img: 'https://www.startpage.com/av/proxy-image?piurl=https%3A%2F%2Ftse1.mm.bing.net%2Fth%2Fid%2FOIP.DD7lufrJ6V-YUnmh2zWtrQHaFM%3Fpid%3DApi&sp=1777570792T1b4260453eeb739bfb14cdd556d1d91d27c01a98077abfa4cda8772269395540'
+      },
+      {
+        name: 'Weed Indoor - Standard OG Kush (1g)',
+        price: 100,
+        desc: 'Indoor grown cannabis - Standard OG Kush quality per gram.',
+        img: 'https://www.startpage.com/av/proxy-image?piurl=https%3A%2F%2Ftse4.mm.bing.net%2Fth%2Fid%2FOIP.5Zb_Kf_hm5hYaZE4TY4SnAHaD4%3Fpid%3DApi&sp=1777570926T565e3f48cf7987a7217515aab12d022312426b331f4610cd4da74b9ee9a13cf5'
+      },
+      {
+        name: 'Weed Indoor - Premium Northern Lights (1g)',
+        price: 120,
+        desc: 'Indoor grown cannabis - Premium Northern Lights quality per gram.',
+        img: 'https://www.startpage.com/av/proxy-image?piurl=https%3A%2F%2Ftse1.mm.bing.net%2Fth%2Fid%2FOIP.w2jPbwQgvDjksKQBZD4a2AHaHa%3Fr%3D0%26pid%3DApi&sp=1777571172Tc5c622d98468e7f322dc4b49c34e7fa30a08f965bef3a53b1bb841b2b84e9a5f'
+      },
+      {
+        name: 'Vape Weed Battery/Charger',
+        price: 200,
+        desc: 'High-quality vape battery with charger for cannabis cartridges.',
+        img: 'https://lucxwholesale.com/wp-content/uploads/2022/10/cookiescolour1-606x1024.png'
+      },
+      {
+        name: 'Vape Weed Cartridge',
+        price: 300,
+        desc: 'Premium cannabis cartridge vape for convenient consumption.',
+        img: 'https://www.shutterstock.com/image-photo/backlit-marijuana-vape-pen-cartridge-600nw-1945240780.jpg'
+      },
+      {
+        name: 'Pre Roll Joint - Basic Skunk',
+        price: 10,
+        desc: 'Pre-rolled cannabis joint - Basic Skunk quality.',
+        img: 'https://rarecannabis.ca/wp-content/uploads/2026/01/qdtpkqfah7hduzvtccaf-scaled.png'
+      },
+      {
+        name: 'Pre Roll Joint - Standard OG Kush',
+        price: 15,
+        desc: 'Pre-rolled cannabis joint - Standard OG Kush quality.',
+        img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTwzKcHGzp-_dVJY1VUuniVtjhFXTUOaxR_jw&s'
+      },
+      {
+        name: 'Pre Roll Joint - Premium Durban Poison',
+        price: 25,
+        desc: 'Pre-rolled cannabis joint - Premium Durban Poison quality.',
+        img: 'https://mamakana.com/cdn/shop/files/fgsf_49bcd1e9-280b-41db-abf3-14f11777897e.jpg'
+      },
+      {
+        name: 'Pre Roll Joint - Deluxe Northern Lights',
+        price: 30,
+        desc: 'Pre-rolled cannabis joint - Deluxe Northern Lights quality.',
+        img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRNGI9Nonf7vf41vtdFjYrGOjP_YlY8-V5yag&s'
+      },
+      {
+        name: 'Pre Roll Joint - Supreme Chronic',
+        price: 40,
+        desc: 'Pre-rolled cannabis joint - Supreme Chronic quality.',
+        img: 'https://p.turbosquid.com/ts-thumb/xg/sPFIac/JrRLAhmX/cone01tt/png/1592195565/1920x1080/turn_fit_q99/1c6917f36aabc1a6a77ed8397b06db841c3f59e4/cone01tt-1.jpg'
+      },
+      {
+        name: 'Pre Roll Moonstick (Dab & Hash)',
+        price: 100,
+        desc: 'Special pre-roll laced with dab and hash for enhanced experience.',
+        img: 'https://uploads.iheartjane.com/uploads/ac326761-327d-4d3e-ad59-260ce6354b00.jpg'
+      },
+      {
+        name: 'Weed Divorce Cake (1g)',
+        price: 100,
+        desc: 'Premium Divorce Cake Is A Rare Wedding Cake Cross That Is Super Heavy.',
+        img: 'https://respectmyregion.com/wp-content/uploads/2019/06/Jungle-Boys-Divorce-Cake.jpg'
       }
     ];
 
@@ -360,10 +470,27 @@
       }
 
       const total = cart.reduce((sum, item) => sum + item.price, 0);
-      const items = cart.map(item => item.name).join(', ');
+      
+      // Create detailed order summary
+      const orderDetails = cart.map((item, index) => 
+        `${index + 1}. ${item.name} - R${item.price}`
+      ).join('\n');
+      
+      const itemsList = cart.map(item => item.name).join(', ');
 
-      document.getElementById('cartItemsField').value = items;
+      document.getElementById('cartItemsField').value = itemsList;
       document.getElementById('totalField').value = `R${total}`;
+      
+      // Add detailed order breakdown as a separate field
+      let orderBreakdownField = document.getElementById('orderBreakdownField');
+      if (!orderBreakdownField) {
+        orderBreakdownField = document.createElement('input');
+        orderBreakdownField.type = 'hidden';
+        orderBreakdownField.name = 'orderBreakdown';
+        orderBreakdownField.id = 'orderBreakdownField';
+        form.appendChild(orderBreakdownField);
+      }
+      orderBreakdownField.value = orderDetails;
 
       form.submit();
     }
@@ -377,10 +504,27 @@
       }
 
       const total = cart.reduce((sum, item) => sum + item.price, 0);
-      const items = cart.map(item => item.name).join(', ');
+      
+      // Create detailed order summary
+      const orderDetails = cart.map((item, index) => 
+        `${index + 1}. ${item.name} - R${item.price}`
+      ).join('\n');
+      
+      const itemsList = cart.map(item => item.name).join(', ');
 
-      document.getElementById('cartItemsField').value = items;
+      document.getElementById('cartItemsField').value = itemsList;
       document.getElementById('totalField').value = `R${total}`;
+      
+      // Add detailed order breakdown as a separate field
+      let orderBreakdownField = document.getElementById('orderBreakdownField');
+      if (!orderBreakdownField) {
+        orderBreakdownField = document.createElement('input');
+        orderBreakdownField.type = 'hidden';
+        orderBreakdownField.name = 'orderBreakdown';
+        orderBreakdownField.id = 'orderBreakdownField';
+        this.appendChild(orderBreakdownField);
+      }
+      orderBreakdownField.value = orderDetails;
 
       this.submit();
       
@@ -399,6 +543,7 @@
     // Initialize Map
     let map = null;
     let marker = null;
+    let searchTimeout = null;
     
     function initializeMap() {
       const mapContainer = document.getElementById('locationMap');
@@ -420,14 +565,7 @@
         const lat = e.latlng.lat;
         const lng = e.latlng.lng;
 
-        if (marker) {
-          map.removeLayer(marker);
-        }
-
-        marker = L.marker([lat, lng]).addTo(map).bindPopup(`Location: ${lat.toFixed(4)}, ${lng.toFixed(4)}`).openPopup();
-
-        document.getElementById('mapCoordinates').value = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-        document.getElementById('deliveryLocation').value = `Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}`;
+        setLocation(lat, lng);
       });
 
       // Get user's current location
@@ -436,11 +574,98 @@
           const lat = position.coords.latitude;
           const lng = position.coords.longitude;
           map.setView([lat, lng], 15);
-
-          marker = L.marker([lat, lng]).addTo(map).bindPopup('Your Location').openPopup();
-          document.getElementById('mapCoordinates').value = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+          setLocation(lat, lng);
         });
       }
+
+      // Setup location search
+      setupLocationSearch();
+    }
+
+    function setupLocationSearch() {
+      const input = document.getElementById('deliveryLocation');
+      const suggestions = document.getElementById('locationSuggestions');
+
+      input.addEventListener('input', function() {
+        const query = this.value.trim();
+        
+        if (query.length < 3) {
+          suggestions.style.display = 'none';
+          return;
+        }
+
+        // Debounce search
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+          searchLocations(query);
+        }, 300);
+      });
+
+      // Hide suggestions when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!e.target.closest('.location-search-container')) {
+          suggestions.style.display = 'none';
+        }
+      });
+    }
+
+    function searchLocations(query) {
+      const suggestions = document.getElementById('locationSuggestions');
+      
+      // Use Nominatim geocoding (OpenStreetMap)
+      fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=za&limit=5`)
+        .then(response => response.json())
+        .then(data => {
+          suggestions.innerHTML = '';
+          
+          if (data.length === 0) {
+            suggestions.style.display = 'none';
+            return;
+          }
+
+          data.forEach(location => {
+            const div = document.createElement('div');
+            div.className = 'location-suggestion';
+            div.textContent = location.display_name;
+            div.addEventListener('click', () => {
+              selectLocation(location);
+            });
+            suggestions.appendChild(div);
+          });
+
+          suggestions.style.display = 'block';
+        })
+        .catch(error => {
+          console.error('Geocoding error:', error);
+          suggestions.style.display = 'none';
+        });
+    }
+
+    function selectLocation(location) {
+      const lat = parseFloat(location.lat);
+      const lng = parseFloat(location.lon);
+      
+      setLocation(lat, lng);
+      document.getElementById('deliveryLocation').value = location.display_name;
+      document.getElementById('locationSuggestions').style.display = 'none';
+      
+      // Center map on selected location
+      map.setView([lat, lng], 16);
+    }
+
+    function setLocation(lat, lng) {
+      // Remove existing marker
+      if (marker) {
+        map.removeLayer(marker);
+      }
+
+      // Add new marker
+      marker = L.marker([lat, lng]).addTo(map)
+        .bindPopup(`Location: ${lat.toFixed(4)}, ${lng.toFixed(4)}`)
+        .openPopup();
+
+      // Update form field
+      document.getElementById('mapCoordinates').value = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
     }
 
     renderProducts();
